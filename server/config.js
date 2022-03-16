@@ -21,9 +21,16 @@ export default {
     },
     pages: {
         homeHTML: 'home/index.html',
-        constrollerHTML: 'constroller/index.html',
+        constrollerHTML: 'controller/index.html'
     },
     location: {
         home: '/home'
+    },
+    constants:{
+        CONTENT_TYPE: {
+            '.html': 'text/html',
+            '.css': 'text/css',
+            '.js': 'text/javascript',
+        }
     }
 }
