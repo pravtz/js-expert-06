@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 import {jest} from '@jest/globals'
 import {Readable, Writable} from 'stream'
 
@@ -16,7 +18,6 @@ export default class TestUtil {
         return new Writable({
             write(chunk, enc, cb){
                 onData(chunk)
-
                 cb(null, chunk)
             }
         })
