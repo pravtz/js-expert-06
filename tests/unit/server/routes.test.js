@@ -2,7 +2,7 @@ import {jest, expect, describe, test, beforeEach} from '@jest/globals'
 import TestUtil from '../_util/testUtil.js'
 import {handler} from '../../../server/routes.js'
 import config from '../../../server/config.js'
-import { Controller } from '../../../server/controller.js'
+import { Controller } from '../../../server/Controller.js'
 
 const {location, pages, constants:{CONTENT_TYPE}} = config
 

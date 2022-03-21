@@ -1,5 +1,5 @@
 import {jest, expect, describe, test, beforeEach} from '@jest/globals'
-import {Controller} from '../../../server/controller.js'
+import {Controller} from '../../../server/Controller.js'
 import {Service} from '../../../server/service.js'
 import TestUtil from '../_util/testUtil.js'
 

@@ -1,45 +1,67 @@
 import config from "./config.js"
-import { Controller } from "./controller.js"
+import { Controller } from "./Controller.js"
 import { logger } from "./util.js"
-const {location, pages: {homeHTML, constrollerHTML}, constants:{CONTENT_TYPE}} = config
+import { once } from 'events'
+const { location, pages: { homeHTML, constrollerHTML }, constants: { CONTENT_TYPE } } = config
 
 const controller = new Controller()
 
-async function routes(request,response){
-    const {method , url} = request
+async function routes(request, response) {
+    const { method, url } = request
 
-    if(method === "GET" && url === '/'){
+    if (method === "GET" && url === '/') {
         response.writeHead(302, {
             "Location": location.home
         })
         return response.end()
     }
-    if(method === "GET" && url === '/home'){
+    if (method === "GET" && url === '/home') {
         const { stream } = await controller.getFileStream(homeHTML)
         return stream.pipe(response)
     }
-    if(method === "GET" && url === '/controller'){
+    if (method === "GET" && url === '/controller') {
         const { stream } = await controller.getFileStream(constrollerHTML)
         return stream.pipe(response)
     }
-    if(method === "GET"){
+
+    if (method === 'GET' && url.includes('/stream')) {
+        const {
+          stream,
+          onClose
+        } = controller.createClientStream()
+        request.once("close", onClose)
+        response.writeHead(200, {
+          'Content-Type': 'audio/mpeg',
+          'Accept-Rages': 'bytes'
+        })
+    
+        return stream.pipe(response)
+      }
+
+    if(method === 'POST' && url === '/controller') {
+        const data = await once(request, 'data')
+        const item = JSON.parse(data)
+        const result = await controller.handleCommand(item)
+        return response.end(JSON.stringify(result))
+      }
+
+    if (method === "GET") {
         const { stream, type } = await controller.getFileStream(url)
         const contentType = CONTENT_TYPE[type]
-        if(contentType) {
-            response.writeHead(200,{
+        if (contentType) {
+            response.writeHead(200, {
                 'Content-Type': contentType
             })
         }
         return stream.pipe(response)
-
     }
 
     response.writeHead(404)
     return response.end()
-    
+
 }
-function handlerError(error, response){
-    if(error.message.includes('ENOENT')){
+function handlerError(error, response) {
+    if (error.message.includes('ENOENT')) {
         logger.warn(`asset not found ${error.stack}`)
         response.writeHead(404)
         return response.end()
@@ -49,8 +71,8 @@ function handlerError(error, response){
     return response.end()
 }
 
-export function handler(request, response){
-    return routes(request,response).catch(
+export function handler(request, response) {
+    return routes(request, response).catch(
         error => handlerError(error, response)
     )
 }
